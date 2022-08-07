@@ -15,9 +15,16 @@ int dirtools_create_directory(char* path) {
 	for (tok = strtok(path, "\\"); tok != NULL; tok = strtok(NULL, "\\")) {
 		strcat(alltoks, tok);
 		if (stat(alltoks, &st) == -1) {
-			CreateDirectoryA(alltoks, NULL);
+			if (!CreateDirectoryA(alltoks, NULL)) {
+				if (GetLastError() == ERROR_PATH_NOT_FOUND) {
+					/* ERROR_PATH_NOT_FOUND should NOT happen here */
+					return 1;
+				}
+			}
 		}
 	}
+
+	free(alltoks);
 
 	return 0;
 }

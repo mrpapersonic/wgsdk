@@ -4,6 +4,7 @@
 #endif
 #include <windows.h>
 #include "timer.h"
+
 void timer_init(struct timer_t* timer, HWND winampClientWindow, TIMERPROC timer_proc) {
 	timer->winampClientWindow = winampClientWindow;
 	timer->timer_proc = timer_proc;

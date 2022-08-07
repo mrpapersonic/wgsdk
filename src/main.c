@@ -9,10 +9,12 @@
 #include "timer.h"
 #include "config.h"
 #include "dirtools.h"
+#include "resource.h"
 #ifndef WIN32_LEAN_AND_MEAN
 # define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <windowsx.h>
 
 #define CLIENT_ID 969367220599803955
 #define DISCORD_REQUIRE(x) \
@@ -21,13 +23,13 @@
 #define GPPHDR_VER 0x10
 
 winamp_general_purpose_plugin g_plugin = {
-    GPPHDR_VER,  // version of the plugin, defined in "gen_myplugin.h"
-    "Discord GameSDK", // name/title of the plugin, defined in "gen_myplugin.h"
-    init,        // function name which will be executed on init event
-    NULL,      // function name which will be executed on config event
-    quit,        // function name which will be executed on quit event
-    0,           // handle to Winamp main window, loaded by winamp when this dll is loaded
-    0            // hinstance to this dll, loaded by winamp when this dll is loaded
+	GPPHDR_VER,  // version of the plugin, defined in "gen_myplugin.h"
+	"Discord GameSDK", // name/title of the plugin, defined in "gen_myplugin.h"
+	init,        // function name which will be executed on init event
+	conf,      // function name which will be executed on config event
+	quit,        // function name which will be executed on quit event
+	0,           // handle to Winamp main window, loaded by winamp when this dll is loaded
+	0            // hinstance to this dll, loaded by winamp when this dll is loaded
 };
 
 WNDPROC g_lpWndProcOld = 0;
@@ -50,7 +52,7 @@ struct app_t app;
 
 void update_activity_callback(void* data, enum EDiscordResult result)
 {
-    DISCORD_REQUIRE(result);
+	DISCORD_REQUIRE(result);
 }
 
 void report_current_song_status(int playbackState)
@@ -59,29 +61,26 @@ void report_current_song_status(int playbackState)
 	activity.timestamps.start = 0;
 	strcpy(activity.state, playbackState == 1 ? "(Playing)" : "(Paused)");
 
-	if (playbackState == 1) {
+	if (playbackState == 1 && config.show_elapsed_time) {
 		FILETIME ft;
 		GetSystemTimeAsFileTime(&ft);
 		ULARGE_INTEGER ul;
 		ul.LowPart = ft.dwLowDateTime;
 		ul.HighPart = ft.dwHighDateTime;
 		long long dtn = ((ul.QuadPart - 116444736000000000ULL)/10000000);
-		
+
 		activity.timestamps.start = dtn - SendMessage(g_plugin.hwndParent, WM_WA_IPC, 0, IPC_GETOUTPUTTIME) / 1000;
 	} else {
 		activity.timestamps.start = 0;
 	}
 	
     char* detailsMessage = calloc(256, sizeof(char));
-    //if (g_pluginSettings.DisplayTitleInStatus)
-    //{
+	if (config.display_title) {
 		wchar_t* title = (wchar_t*)SendMessageW(g_plugin.hwndParent, WM_WA_IPC, 0, IPC_GET_PLAYING_TITLE);
 		assert(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, title, -1, detailsMessage, 256, NULL, NULL));
-    //}
-    //else
-    //{
-    //    strcpy(activity.details, "");
-    //}
+	} else {
+		strcpy(activity.details, "");
+	}
 	strcpy(activity.details, detailsMessage);
 	free(detailsMessage);
 
@@ -118,8 +117,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (message == WM_WA_IPC && lParam == IPC_CB_MISC && wParam == IPC_CB_MISC_STATUS)
 	{
-		// Notification sent from Winamp on any change in playback.
-
 		update_rich_presence_details();
     }
 
@@ -132,12 +129,12 @@ int init() {
 	memset(&app, 0, sizeof(app));
 	if (IsWindowUnicode(g_plugin.hwndParent)) {
 		g_lpWndProcOld = (WNDPROC)SetWindowLongW(g_plugin.hwndParent, -4, (LONG)WndProc);
-    } else {
+	} else {
 		g_lpWndProcOld = (WNDPROC)SetWindowLongA(g_plugin.hwndParent, -4, (LONG)WndProc);
 	}
 
 	memset(&activity, 0, sizeof(activity));
-    memset(&activities_events, 0, sizeof(activities_events));
+	memset(&activities_events, 0, sizeof(activities_events));
 
 	struct DiscordCreateParams params;
 	DiscordCreateParamsSetDefault(&params);
@@ -169,6 +166,10 @@ void quit() {
 
 void CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD) {
 	DISCORD_REQUIRE(app.core->run_callbacks(app.core));
+}
+
+void conf() {
+	DialogBoxW(g_plugin.hDllInstance, (LPWSTR)DIALOG_CONFIG, g_plugin.hwndParent, &cfg_win_proc);
 }
 
 __declspec(dllexport) winamp_general_purpose_plugin* winampGetGeneralPurposePlugin() {
