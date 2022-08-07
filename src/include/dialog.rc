@@ -1,28 +1,7 @@
 #include "resource.h"
 #include "winres.h"
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-
-#ifdef APSTUDIO_INVOKED
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif // APSTUDIO_INVOKED
 
 DIALOG_CONFIG DIALOGEX 0, 0, 262, 71
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -35,18 +14,3 @@ BEGIN
     CONTROL         "Show elapsed time in presence",ELAPSED_TIME_CHECK,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,20,114,10
 END
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    DIALOG_CONFIG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 255
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 64
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif

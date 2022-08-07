@@ -1,14 +1,11 @@
 #include <assert.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <time.h>
 #include <Winamp/wa_ipc.h>
 #include "main.h"
 #include "discord_game_sdk.h"
 #include "timer.h"
 #include "config.h"
-#include "dirtools.h"
 #include "resource.h"
 #ifndef WIN32_LEAN_AND_MEAN
 # define WIN32_LEAN_AND_MEAN
@@ -124,8 +121,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 int init() {
-	char* path = dirtools_concat_paths(getenv("APPDATA"), "Winamp\\Plugins\\wgsdk");
-	printf("%s", path);
 	memset(&app, 0, sizeof(app));
 	if (IsWindowUnicode(g_plugin.hwndParent)) {
 		g_lpWndProcOld = (WNDPROC)SetWindowLongW(g_plugin.hwndParent, -4, (LONG)WndProc);

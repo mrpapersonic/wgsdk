@@ -24,4 +24,5 @@ src/%.o: src/%.c $(DEPS)
 	gcc -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f src/*.o *.dll
+	find . -type f -name '*.o' -not -path "./discord_game_sdk/*" -delete
+	find . -type f -name '*.dll' -not -path "./discord_game_sdk/*" -delete
