@@ -13,10 +13,11 @@ int dirtools_directory_exists(char* path) {
 }
 
 int dirtools_create_directory(char* path) {
-	char* alltoks = calloc(strlen(path), sizeof(char)), *tok;
+	char* alltoks = calloc(strlen(path)+2, sizeof(char)), *tok;
 
 	for (tok = strtok(path, "\\"); tok != NULL; tok = strtok(NULL, "\\")) {
 		strcat(alltoks, tok);
+		strcat(alltoks, "\\");
 		if (dirtools_directory_exists(path)) {
 			if (!CreateDirectoryA(alltoks, NULL)) {
 				if (GetLastError() == ERROR_PATH_NOT_FOUND) {

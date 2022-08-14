@@ -32,7 +32,7 @@ winamp_general_purpose_plugin g_plugin = {
 WNDPROC g_lpWndProcOld = 0;
 
 struct timer_t timer_callbacks = { .interval = 16 };
-struct config_t config = {
+struct config config = {
 	.display_title = 1,
 	.show_elapsed_time = 1
 };
@@ -71,15 +71,14 @@ void report_current_song_status(int playbackState)
 		activity.timestamps.start = 0;
 	}
 	
-    char* detailsMessage = calloc(256, sizeof(char));
+    char* details_message = calloc(256, sizeof(char));
 	if (config.display_title) {
 		wchar_t* title = (wchar_t*)SendMessageW(g_plugin.hwndParent, WM_WA_IPC, 0, IPC_GET_PLAYING_TITLE);
-		assert(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, title, -1, detailsMessage, 256, NULL, NULL));
-	} else {
-		strcpy(activity.details, "");
+		assert(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, title, -1, details_message, 256, NULL, NULL));
+		free(title);
 	}
-	strcpy(activity.details, detailsMessage);
-	free(detailsMessage);
+	strcpy(activity.details, details_message);
+	free(details_message);
 
 	app.activities->update_activity(app.activities, &activity, &app, update_activity_callback);
 }
@@ -97,16 +96,14 @@ void update_rich_presence_details(void)
 	LONG isPlayingResult = SendMessageW(g_plugin.hwndParent, WM_WA_IPC, 0, IPC_ISPLAYING);
 
 	switch (isPlayingResult) {
-		case 1:
-			report_current_song_status(1);
-			break;
-		case 3:
-			report_current_song_status(3);
-			break;
 		case 0:
 			report_idle_status();
 			break;
-		default: break;
+		case 1:
+		case 3:
+			report_current_song_status(isPlayingResult);
+		default:
+			break;
 	}
 }
 
@@ -164,7 +161,7 @@ void CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD) {
 }
 
 void conf() {
-	DialogBoxW(g_plugin.hDllInstance, (LPWSTR)DIALOG_CONFIG, g_plugin.hwndParent, &cfg_win_proc);
+	DialogBoxW(g_plugin.hDllInstance, (LPWSTR)DIALOG_CONFIG, g_plugin.hwndParent, (DLGPROC)cfg_win_proc);
 }
 
 __declspec(dllexport) winamp_general_purpose_plugin* winampGetGeneralPurposePlugin() {

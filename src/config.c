@@ -13,7 +13,7 @@
 #include <windowsx.h>
 #define MAX_LINE_LENGTH 128
 
-extern struct config_t config; // from main
+extern struct config config; // from main
 
 static unsigned int crc32b(unsigned char *message) {
    int i, j;
@@ -33,7 +33,7 @@ static unsigned int crc32b(unsigned char *message) {
    return ~crc;
 }
 
-int cfg_load(struct config_t* config) {
+int cfg_load(struct config* config) {
 	char line[MAX_LINE_LENGTH] = {0}, 
 	     *path = dirtools_concat_paths(getenv("APPDATA"), "Winamp\\Plugins\\wgsdk\\config.txt");
 	FILE* config_fp;
@@ -58,7 +58,7 @@ int cfg_load(struct config_t* config) {
 	return 0;
 }
 
-int cfg_save(struct config_t config) {
+int cfg_save(struct config config) {
 	char* path = dirtools_concat_paths(getenv("APPDATA"), "Winamp\\Plugins\\wgsdk");
 	FILE* config_fp;
 	assert(!dirtools_create_directory(path));
