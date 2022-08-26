@@ -11,7 +11,7 @@ The config file is located at `%AppData%\Roaming\Winamp\Plugins\wgsdk\config.txt
 ### Differences to wdrp
 * uses GameSDK (obviously)
 * written in C instead of C++
-* uses GNU make instead of Visual Studio
+* uses a Makefile instead of Visual Studio
 * several other coding differences (e.g. there's no classes in C)
 
 ### How to compile
