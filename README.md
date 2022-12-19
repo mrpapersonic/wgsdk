@@ -1,5 +1,7 @@
 # Discord GameSDK Winamp Plugin
 
+## This repository has moved to [SourceHut](https://hg.sr.ht/~mrpapersonic/wgsdk)! Any further development will be done there.
+
 This plugin is largely based off of clandrew's [wdrp](https://github.com/clandrew/wdrp). You can look at the screenshots in that repository, it looks pretty much identical.
 
 ### Installing
